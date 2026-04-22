@@ -5,7 +5,7 @@ namespace App\Modules\Attendance\Actions;
 use App\Modules\Attendance\DTOs\ZkTecoPunchData;
 use App\Modules\Attendance\Models\AttendanceLog;
 use App\Modules\Attendance\Models\RawBiometricLog;
-use App\Modules\Employee\Models\Employee;
+use App\Modules\HRIS\Models\Employee;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
