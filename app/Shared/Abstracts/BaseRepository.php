@@ -51,12 +51,18 @@ abstract class BaseRepository
 
     public function findById(string $id): ?Model
     {
-        return $this->getQuery()->where('uuid', $id)->first();
+        return $this->getQuery()
+            ->where('uuid', $id)
+            ->with(['department', 'schedule', 'user'])
+            ->first();
+
     }
 
     public function findByIdOrFail(string $id): Model
     {
-        return $this->getQuery()->where('uuid', $id)->firstOrFail();
+        return $this->getQuery()->where('uuid', $id)
+            ->with(['department', 'schedule', 'user'])
+            ->firstOrFail();
     }
 
     public function all(): Collection
@@ -77,6 +83,7 @@ abstract class BaseRepository
     public function update(string $id, array $data): Model
     {
         $record = $this->findByIdOrFail($id);
+
         $record->update($data);
 
         return $record->fresh();

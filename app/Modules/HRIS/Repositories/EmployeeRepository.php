@@ -42,12 +42,14 @@ class EmployeeRepository extends BaseRepository
     {
         return $this
             ->newQuery()
-            ->when(isset($filters['employment_status']), fn ($q) => $q->where('employment_status', $filters['employment_status'])
+            ->with(['department', 'schedule', 'user'])
+            ->when(isset($filters['employee_status']), fn ($q) => $q->where('employee_status', $filters['employee_status'])
             )
             ->when(isset($filters['search']), function ($query) use ($filters) {
-                $query->where('full_name', 'like', "%{$filters['search']}%");
+                $query->where('full_name', 'ilike', "%{$filters['search']}%");
             })
             ->orderBy($filters['sort_by'] ?? 'created_at', $filters['sort_order'] ?? 'desc')
-            ->paginate($perPage);
+            ->paginate($perPage)
+            ->withQueryString();
     }
 }

@@ -21,6 +21,11 @@ class EmployeeService implements EmployeeDataContract
      */
     public function __construct(private readonly EmployeeRepository $repository) {}
 
+    public function getById(string $id): Employee
+    {
+        return $this->repository->findByIdOrFail($id);
+    }
+
     public function getActiveEmployees(): DataCollection
     {
         return EmployeeData::collect($this->repository->getActive());
@@ -58,6 +63,12 @@ class EmployeeService implements EmployeeDataContract
         $data['employee_number'] = $this->generateEmployeeNumber();
         $data['user_id'] = Auth::user()->id;
 
+        if (isset($data['profile_photo'])) {
+            $path = $data['profile_photo']->store('employees', 'local');
+            $data['profile_photo_url'] = $path;
+            unset($data['profile_photo']);
+        }
+
         $employee = $this->repository->create($data);
 
         event(new EmployeeCreated($employee));
@@ -67,6 +78,17 @@ class EmployeeService implements EmployeeDataContract
 
     public function update(string $id, array $data): Employee
     {
+        // if profile photo was remove, set it to null
+        if (isset($data['profile_photo_url']) && $data['profile_photo_url'] === '') {
+            $data['profile_photo_url'] = null;
+        }
+
+        if (isset($data['profile_photo'])) {
+            $path = $data['profile_photo']->store('employees', 'local');
+            $data['profile_photo_url'] = $path;
+            unset($data['profile_photo']);
+        }
+
         $employee = $this->repository->update($id, $data);
 
         event(new EmployeeUpdated($employee));

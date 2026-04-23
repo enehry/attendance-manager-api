@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\HRIS\DTOs;
 
 use App\Shared\Enums\EmploymentStatus;
+use Illuminate\Http\UploadedFile;
 use Spatie\LaravelData\Data;
 
 class EmployeeData extends Data
@@ -22,5 +23,9 @@ class EmployeeData extends Data
         public readonly EmploymentStatus $employment_status,
         public readonly int $user_id,
         public readonly int $schedule_id,
+        public readonly int $department_id,
+        public readonly ?string $profile_photo_url,
+        // actual file of profile photo from the request
+        public readonly ?UploadedFile $profile_photo,
     ) {}
 }

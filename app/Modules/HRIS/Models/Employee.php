@@ -2,6 +2,7 @@
 
 namespace App\Modules\HRIS\Models;
 
+use App\Models\User;
 use App\Modules\Attendance\Models\AttendanceLog;
 use App\Modules\Attendance\Models\RawBiometricLog;
 use App\Modules\Schedule\Models\Schedule;
@@ -11,6 +12,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\LaravelData\Attributes\WithCast;
 
@@ -24,6 +27,8 @@ use Spatie\LaravelData\Attributes\WithCast;
     'employment_status',
     'user_id',
     'schedule_id',
+    'department_id',
+    'profile_photo_url',
 ])]
 #[WithCast([
     'employment_status' => EmploymentStatus::class,
@@ -35,13 +40,23 @@ class Employee extends Model
     use SoftDeletes;
 
     // The schedule an employee must follow
-    public function schedule()
+    public function schedule(): BelongsTo
     {
         return $this->belongsTo(Schedule::class);
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
     // Processed time records
-    public function attendanceLogs()
+    public function attendanceLogs(): HasMany
     {
         return $this->hasMany(AttendanceLog::class);
     }

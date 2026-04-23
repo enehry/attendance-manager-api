@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Modules\HRIS\Models\Department;
 use App\Modules\Schedule\Models\Schedule;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -23,8 +24,10 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('address');
             $table->string('employment_status');
+            $table->string('profile_photo_url')->nullable();
             $table->foreignIdFor(User::class)->index()->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Schedule::class)->index()->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Department::class)->index()->constrained()->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();
 

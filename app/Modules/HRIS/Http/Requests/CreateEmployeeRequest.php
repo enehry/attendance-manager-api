@@ -36,6 +36,8 @@ class CreateEmployeeRequest extends FormRequest
                 Rule::enum(EmploymentStatus::class),
             ],
             'schedule_id' => 'required|exists:schedules,id',
+            'department_id' => 'required|exists:departments,id',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\User;
+use App\Modules\HRIS\Models\Department;
 use App\Modules\HRIS\Models\Employee;
 use App\Modules\Schedule\Models\Schedule;
 use App\Shared\Enums\EmploymentStatus;
@@ -33,6 +34,7 @@ class EmployeeFactory extends Factory
             'employment_status' => $this->faker->randomElement(EmploymentStatus::cases()),
             'user_id' => User::factory(),
             'schedule_id' => Schedule::factory(),
+            'department_id' => Department::factory(),
         ];
     }
 }

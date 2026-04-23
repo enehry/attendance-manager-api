@@ -7,7 +7,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 trait ApiResponse
 {
-    protected function success(mixed $data, string $message, int $status = 200): JsonResponse
+    protected function success(mixed $data, string $message = 'Record retrieved successfully', int $status = 200): JsonResponse
     {
         return response()->json([
             'success' => true,
@@ -55,6 +55,7 @@ trait ApiResponse
                 'current_page' => $paginator->currentPage(),
                 'last_page' => $paginator->lastPage(),
             ],
+            'links' => $paginator->linkCollection()->toArray(),
         ]);
     }
 

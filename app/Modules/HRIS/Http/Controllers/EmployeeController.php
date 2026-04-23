@@ -6,12 +6,15 @@ namespace App\Modules\HRIS\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\HRIS\Http\Requests\CreateEmployeeRequest;
+use App\Modules\HRIS\Http\Requests\EmployeeFilterRequest;
 use App\Modules\HRIS\Http\Requests\EmployeeUpdateRequest;
+use App\Modules\HRIS\Http\Resources\EmployeeResource;
 use App\Modules\HRIS\Services\EmployeeService;
 use App\Shared\Traits\ApiResponse;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 #[Group('HRIS Module')]
 class EmployeeController extends Controller
@@ -23,13 +26,14 @@ class EmployeeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): JsonResponse
+    public function index(EmployeeFilterRequest $request): JsonResponse
     {
 
-        // $validated = $request->validated();
-        $employees = $this->service->paginateWithFilters([], 20);
+        $filters = $request->validated();
 
-        return $this->success($employees, 'Employee retrieved successfully');
+        $employees = $this->service->paginateWithFilters($filters, 20);
+
+        return $this->paginated(EmployeeResource::collection($employees), $employees);
     }
 
     /**
@@ -40,7 +44,7 @@ class EmployeeController extends Controller
         $validated = $request->validated();
         $employee = $this->service->create($validated);
 
-        return $this->created($employee, 'Employee created successfully');
+        return $this->created(new EmployeeResource($employee), 'Employee created successfully');
     }
 
     /**
@@ -48,9 +52,9 @@ class EmployeeController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $employee = $this->service->getEmployeeById($id);
+        $employee = $this->service->getById($id);
 
-        return $this->success($employee, 'Employee retrieved successfully');
+        return $this->success(new EmployeeResource($employee), 'Employee retrieved successfully');
     }
 
     /**
@@ -61,7 +65,7 @@ class EmployeeController extends Controller
         $validated = $request->validated();
         $employee = $this->service->update($uuid, $validated);
 
-        return $this->success($employee, 'Employee updated successfully');
+        return $this->success(new EmployeeResource($employee), 'Employee updated successfully');
     }
 
     /**
@@ -87,5 +91,25 @@ class EmployeeController extends Controller
         $this->service->restore($id);
 
         return $this->success([], 'Employee restored successfully');
+    }
+
+    /**
+     * Serve the employee's profile photo from private storage.
+     */
+    public function photo(?string $path): StreamedResponse
+    {
+
+        if (str_contains($path, '..')) {
+            abort(403);
+        }
+
+        if (! $path || ! Storage::disk('local')->exists($path)) {
+            abort(404);
+        }
+
+        return Storage::disk('local')->response($path, null, [
+            'Cache-Control' => 'private, max-age=86400',
+            'Content-Disposition' => 'inline',
+        ]);
     }
 }
