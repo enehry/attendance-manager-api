@@ -11,6 +11,7 @@ use App\Modules\HRIS\Models\Employee;
 use App\Modules\HRIS\Repositories\EmployeeRepository;
 use App\Shared\Contracts\EmployeeDataContract;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Spatie\LaravelData\DataCollection;
 
 class EmployeeService implements EmployeeDataContract
@@ -55,6 +56,7 @@ class EmployeeService implements EmployeeDataContract
     public function create(array $data): Employee
     {
         $data['employee_number'] = $this->generateEmployeeNumber();
+        $data['user_id'] = Auth::user()->id;
 
         $employee = $this->repository->create($data);
 
@@ -75,6 +77,16 @@ class EmployeeService implements EmployeeDataContract
     public function delete(string $id): bool
     {
         return $this->repository->delete($id);
+    }
+
+    public function forceDelete(string $id): bool
+    {
+        return $this->repository->forceDelete($id);
+    }
+
+    public function restore(string $id): bool
+    {
+        return $this->repository->restore($id);
     }
 
     public function paginateWithFilters(array $filters, int $perPage = 20): LengthAwarePaginator

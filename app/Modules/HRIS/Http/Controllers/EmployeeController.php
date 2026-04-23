@@ -9,9 +9,11 @@ use App\Modules\HRIS\Http\Requests\CreateEmployeeRequest;
 use App\Modules\HRIS\Http\Requests\EmployeeUpdateRequest;
 use App\Modules\HRIS\Services\EmployeeService;
 use App\Shared\Traits\ApiResponse;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+#[Group('HRIS Module')]
 class EmployeeController extends Controller
 {
     use ApiResponse;
@@ -54,7 +56,7 @@ class EmployeeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(EmployeeUpdateRequest $request, string $uuid)
+    public function update(EmployeeUpdateRequest $request, string $uuid): JsonResponse
     {
         $validated = $request->validated();
         $employee = $this->service->update($uuid, $validated);
@@ -65,10 +67,25 @@ class EmployeeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $uuid)
+    public function destroy(string $id): JsonResponse
     {
-        $this->service->delete($uuid);
+        $this->service->delete($id);
 
-        return $this->noContent('Employee deleted successfully');
+        return $this->success([], 'Employee deleted successfully');
+    }
+
+    public function forceDelete(string $id): JsonResponse
+    {
+
+        $this->service->forceDelete($id);
+
+        return $this->success([], 'Employee force deleted successfully');
+    }
+
+    public function restore(string $id): JsonResponse
+    {
+        $this->service->restore($id);
+
+        return $this->success([], 'Employee restored successfully');
     }
 }

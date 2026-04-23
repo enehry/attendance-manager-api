@@ -21,6 +21,21 @@ trait ApiResponse
         return $this->success($data, $message, 201);
     }
 
+    protected function deleted(string $message = 'Record deleted successfully'): JsonResponse
+    {
+        return $this->noContent($message);
+    }
+
+    protected function restored(mixed $data = null, string $message = 'Record restored successfully'): JsonResponse
+    {
+        return $this->success($data, $message, 200);
+    }
+
+    protected function forceDeleted(string $message = 'Record permanently deleted successfully'): JsonResponse
+    {
+        return $this->noContent($message);
+    }
+
     protected function noContent(string $message = 'Deleted successfully'): JsonResponse
     {
         return response()->json([

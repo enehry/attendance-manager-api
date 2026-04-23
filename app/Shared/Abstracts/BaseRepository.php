@@ -15,6 +15,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
  */
 abstract class BaseRepository
 {
+    protected $query;
+
     abstract protected function model(): string;
 
     protected function newQuery()
@@ -22,29 +24,54 @@ abstract class BaseRepository
         return app($this->model())->newQuery();
     }
 
+    /**
+     * Get the current query and reset state.
+     */
+    protected function getQuery()
+    {
+        $query = $this->query ?: $this->newQuery();
+        $this->query = null;
+
+        return $query;
+    }
+
+    public function withTrashed(): self
+    {
+        $this->query = ($this->query ?: $this->newQuery())->withTrashed();
+
+        return $this;
+    }
+
+    public function onlyTrashed(): self
+    {
+        $this->query = ($this->query ?: $this->newQuery())->onlyTrashed();
+
+        return $this;
+    }
+
     public function findById(string $id): ?Model
     {
-        return $this->newQuery()->where('uuid', $id)->first();
+        return $this->getQuery()->where('uuid', $id)->first();
     }
 
     public function findByIdOrFail(string $id): Model
     {
-        return $this->newQuery()->where('uuid', $id)->firstOrFail();
+        return $this->getQuery()->where('uuid', $id)->firstOrFail();
     }
 
     public function all(): Collection
     {
-        return $this->newQuery()->get();
+        return $this->getQuery()->get();
     }
 
     public function paginate(int $perPage = 20, array $filters = []): LengthAwarePaginator
     {
-        return $this->applyFilters($this->newQuery(), $filters)->paginate($perPage);
+        return $this->applyFilters($this->getQuery(), $filters)->paginate($perPage);
     }
 
     public function create(array $data): Model
     {
-        return $this->newQuery()->create($data);
+        return $this->getQuery()->create($data);
     }
 
     public function update(string $id, array $data): Model
@@ -58,6 +85,16 @@ abstract class BaseRepository
     public function delete(string $id): bool
     {
         return $this->findByIdOrFail($id)->delete();
+    }
+
+    public function forceDelete(string $id): bool
+    {
+        return $this->withTrashed()->findByIdOrFail($id)->forceDelete();
+    }
+
+    public function restore(string $id): bool
+    {
+        return $this->withTrashed()->findByIdOrFail($id)->restore();
     }
 
     /**

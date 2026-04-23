@@ -25,12 +25,6 @@ class EmployeeUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'employee_number' => [
-            //     'required',
-            //     'string',
-            //     'size:8',
-            //     Rule::unique('employees', 'employee_number')->ignore($this->route('id')),
-            // ],
             'last_name' => 'required|string|max:100',
             'first_name' => 'required|string|max:100',
             'middle_name' => 'nullable|string|max:100',
@@ -40,7 +34,6 @@ class EmployeeUpdateRequest extends FormRequest
                 'required',
                 Rule::enum(EmploymentStatus::class),
             ],
-            'user_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:schedules,id',
         ];
     }

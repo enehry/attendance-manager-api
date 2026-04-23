@@ -35,7 +35,6 @@ class CreateEmployeeRequest extends FormRequest
                 'required',
                 Rule::enum(EmploymentStatus::class),
             ],
-            'user_id' => 'required|exists:users,id',
             'schedule_id' => 'required|exists:schedules,id',
         ];
     }
