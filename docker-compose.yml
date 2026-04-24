@@ -24,6 +24,7 @@ services:
       SESSION_DRIVER: redis
     volumes:
       - ./:/var/www/html
+      - /var/www/html/vendor
     networks:
       - attendance-network
     depends_on:
@@ -37,6 +38,7 @@ services:
 # No host ports needed, Traefik handles routing
     volumes:
       - ./:/var/www/html
+      - /var/www/html/vendor
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     networks:
       - attendance-network
