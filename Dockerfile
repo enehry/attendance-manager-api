@@ -10,7 +10,8 @@ RUN apk add --no-cache \
     git \
     postgresql-dev \
     libzip-dev \
-    icu-dev
+    icu-dev \
+    bash
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_pgsql pgsql zip bcmath gd intl opcache
