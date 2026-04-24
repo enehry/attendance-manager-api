@@ -85,6 +85,14 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 RUN cat <<'EOF' > /start.sh
 #!/bin/sh
 
+# Wait for database to be ready
+echo "Waiting for database..."
+until nc -z db 5432; do
+  echo "Database is unavailable - sleeping"
+  sleep 1
+done
+echo "Database is up - continuing"
+
 # Run database migrations
 php artisan migrate --force
 
