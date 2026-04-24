@@ -1,8 +1,8 @@
-node_modules
-vendor
-storage/logs
-storage/framework/sessions
-storage/framework/views
-storage/framework/cache
-.env
 .git
+.env
+.env.*
+vendor/
+node_modules/
+public/build/
+tests/
+*.md
