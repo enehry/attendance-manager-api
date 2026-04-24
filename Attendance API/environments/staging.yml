@@ -1,0 +1,4 @@
+name: staging
+variables:
+  - name: base_url
+    value: http://attendance.angonolgu.local/api/v1
