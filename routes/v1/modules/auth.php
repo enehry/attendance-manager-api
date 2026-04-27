@@ -6,7 +6,6 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [RegisteredUserController::class, 'store'])
@@ -42,6 +41,5 @@ Route::post('get-token', [AuthenticatedSessionController::class, 'getToken']);
 Route::post('revoke-token', [AuthenticatedSessionController::class, 'revokeToken'])
     ->middleware('auth:sanctum');
 
-Route::middleware(['auth:sanctum'])->get('/me', function (Request $request) {
-    return response()->json($request->user());
-});
+Route::get('/user', [AuthenticatedSessionController::class, 'me'])
+    ->middleware('auth:sanctum');

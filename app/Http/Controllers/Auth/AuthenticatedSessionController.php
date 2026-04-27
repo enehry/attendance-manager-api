@@ -74,4 +74,12 @@ class AuthenticatedSessionController extends Controller
 
         return response()->noContent();
     }
+
+    /**
+     * Get the authenticated user.
+     */
+    public function me(Request $request)
+    {
+        return response()->json($request->user()->load('employee'));
+    }
 }

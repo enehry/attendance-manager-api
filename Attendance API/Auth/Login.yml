@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: "{{base_url}}/auth/get-token"
+  url: "{{base_url}}/auth/login"
   headers:
     - name: Accept
       value: application/json

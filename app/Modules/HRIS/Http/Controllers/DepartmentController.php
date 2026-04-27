@@ -13,7 +13,7 @@ use App\Shared\Traits\ApiResponse;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
-#[Group('HRIS Module')]
+#[Group('Departments')]
 class DepartmentController extends Controller
 {
     use ApiResponse;
