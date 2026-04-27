@@ -5,9 +5,11 @@ namespace App\Modules\Attendance\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Attendance\Actions\ProcessRealtimePunchAction;
 use App\Modules\Attendance\DTOs\ZkTecoPunchData;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+#[Group('Attendance Module')]
 class ZkTecoAdmsController extends Controller
 {
     /**

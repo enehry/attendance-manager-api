@@ -26,6 +26,7 @@ class EmployeeResource extends JsonResource
             'address' => $this->address,
             'employment_status' => $this->employment_status,
             'profile_photo_url' => $this->profile_photo_url ? route('employee-photo', $this->profile_photo_url) : null,
+            'email' => $this->user?->email,
             'department' => new DepartmentResource($this->whenLoaded('department')),
             'schedule' => $this->whenLoaded('schedule'),
             'created_at' => $this->created_at,

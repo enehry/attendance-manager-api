@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\HRIS\Services;
 
+use App\Models\User;
 use App\Modules\HRIS\DTOs\EmployeeData;
 use App\Modules\HRIS\Events\EmployeeCreated;
 use App\Modules\HRIS\Events\EmployeeUpdated;
@@ -12,6 +13,8 @@ use App\Modules\HRIS\Repositories\EmployeeRepository;
 use App\Shared\Contracts\EmployeeDataContract;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Spatie\LaravelData\DataCollection;
 
 class EmployeeService implements EmployeeDataContract
@@ -60,40 +63,74 @@ class EmployeeService implements EmployeeDataContract
 
     public function create(array $data): Employee
     {
-        $data['employee_number'] = $this->generateEmployeeNumber();
-        $data['user_id'] = Auth::user()->id;
+        return DB::transaction(function () use ($data) {
+            $data['employee_number'] = $this->generateEmployeeNumber();
 
-        if (isset($data['profile_photo'])) {
-            $path = $data['profile_photo']->store('employees', 'local');
-            $data['profile_photo_url'] = $path;
-            unset($data['profile_photo']);
-        }
+            // Create user account for the employee
+            $user = User::create([
+                'name' => "{$data['first_name']} {$data['last_name']}",
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+            ]);
 
-        $employee = $this->repository->create($data);
+            $data['user_id'] = $user->id;
 
-        event(new EmployeeCreated($employee));
+            if (isset($data['profile_photo'])) {
+                $path = $data['profile_photo']->store('employees', 'local');
+                $data['profile_photo_url'] = $path;
+                unset($data['profile_photo']);
+            }
 
-        return $employee;
+            $employee = $this->repository->create($data);
+
+            event(new EmployeeCreated($employee));
+
+            return $employee;
+        });
     }
 
     public function update(string $id, array $data): Employee
     {
-        // if profile photo was remove, set it to null
-        if (isset($data['profile_photo_url']) && $data['profile_photo_url'] === '') {
-            $data['profile_photo_url'] = null;
-        }
+        return DB::transaction(function () use ($id, $data) {
+            $employee = $this->repository->findByIdOrFail($id);
 
-        if (isset($data['profile_photo'])) {
-            $path = $data['profile_photo']->store('employees', 'local');
-            $data['profile_photo_url'] = $path;
-            unset($data['profile_photo']);
-        }
+            // Update user account details if provided
+            $userData = [];
+            if (isset($data['first_name']) || isset($data['last_name'])) {
+                $firstName = $data['first_name'] ?? $employee->first_name;
+                $lastName = $data['last_name'] ?? $employee->last_name;
+                $userData['name'] = "{$firstName} {$lastName}";
+            }
 
-        $employee = $this->repository->update($id, $data);
+            if (isset($data['email'])) {
+                $userData['email'] = $data['email'];
+            }
 
-        event(new EmployeeUpdated($employee));
+            if (isset($data['password']) && ! empty($data['password'])) {
+                $userData['password'] = Hash::make($data['password']);
+            }
 
-        return $employee;
+            if (! empty($userData)) {
+                $employee->user->update($userData);
+            }
+
+            // if profile photo was remove, set it to null
+            if (isset($data['profile_photo_url']) && $data['profile_photo_url'] === '') {
+                $data['profile_photo_url'] = null;
+            }
+
+            if (isset($data['profile_photo'])) {
+                $path = $data['profile_photo']->store('employees', 'local');
+                $data['profile_photo_url'] = $path;
+                unset($data['profile_photo']);
+            }
+
+            $employee = $this->repository->update($id, $data);
+
+            event(new EmployeeUpdated($employee));
+
+            return $employee;
+        });
     }
 
     public function delete(string $id): bool

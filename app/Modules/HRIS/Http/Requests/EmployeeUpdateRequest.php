@@ -37,6 +37,14 @@ class EmployeeUpdateRequest extends FormRequest
             'schedule_id' => 'required|exists:schedules,id',
             'department_id' => 'required|exists:departments,id',
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->ignore(
+                    \App\Modules\HRIS\Models\Employee::where('uuid', $this->route('employee'))->first()?->user_id
+                ),
+            ],
+            'password' => 'nullable|string|min:8',
         ];
     }
 }

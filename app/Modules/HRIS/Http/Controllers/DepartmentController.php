@@ -10,8 +10,10 @@ use App\Modules\HRIS\Http\Requests\UpdateDepartmentRequest;
 use App\Modules\HRIS\Http\Resources\DepartmentResource;
 use App\Modules\HRIS\Services\DepartmentService;
 use App\Shared\Traits\ApiResponse;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
+#[Group('HRIS Module')]
 class DepartmentController extends Controller
 {
     use ApiResponse;
@@ -20,6 +22,9 @@ class DepartmentController extends Controller
         private readonly DepartmentService $service,
     ) {}
 
+    /**
+     * List all departments.
+     */
     public function index(): JsonResponse
     {
         $departments = $this->service->getAll();
@@ -27,6 +32,9 @@ class DepartmentController extends Controller
         return $this->success(DepartmentResource::collection($departments));
     }
 
+    /**
+     * Get a single department.
+     */
     public function show(int $id): JsonResponse
     {
         $department = $this->service->getById($id);
@@ -34,6 +42,9 @@ class DepartmentController extends Controller
         return $this->success(new DepartmentResource($department));
     }
 
+    /**
+     * Create a new department.
+     */
     public function store(StoreDepartmentRequest $request): JsonResponse
     {
         $department = $this->service->create($request->validated());
@@ -41,6 +52,9 @@ class DepartmentController extends Controller
         return $this->created(new DepartmentResource($department));
     }
 
+    /**
+     * Update a department.
+     */
     public function update(UpdateDepartmentRequest $request, int $id): JsonResponse
     {
         $department = $this->service->update($id, $request->validated());
@@ -48,8 +62,9 @@ class DepartmentController extends Controller
         return $this->success(new DepartmentResource($department));
     }
 
-    // Separate lightweight endpoint for dropdowns
-    // Returns only id + name — nothing else needed
+    /**
+     * Get lightweight department options for dropdowns.
+     */
     public function options(): JsonResponse
     {
         $options = $this->service->getOptions();
