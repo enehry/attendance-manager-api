@@ -23,7 +23,7 @@ services:
     build:
       context: .
     restart: unless-stopped
-    command: php artisan queue:work --tries=3
+    command: php artisan queue:work --tries=4
     env_file:
       - .env
     depends_on:
